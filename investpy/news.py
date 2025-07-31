@@ -140,6 +140,7 @@ def economic_calendar(
         )
 
     url = "https://vn.investing.com/economic-calendar/Service/getCalendarFilteredData"
+    base_url = "https://vn.investing.com"
 
     headers = {
         "User-Agent": random_user_agent(),
@@ -270,9 +271,9 @@ def economic_calendar(
             else:
                 id_ = id_.replace("eventRowId_", "")
 
-                time = (
-                    zone
-                ) = currency = sentiment = event = actual = forecast = previous = None
+                time = zone = currency = sentiment = event = refUrl = actual = (
+                    forecast
+                ) = previous = None
 
                 if row.get("id").__contains__("eventRowId_"):
                     for value in row.xpath("td"):
@@ -290,6 +291,11 @@ def economic_calendar(
                                 )
                         elif value.get("class") == "left event":
                             event = value.text_content().strip()
+                            ref_elem = value.xpath(".//a")
+                            if ref_elem:
+                                refUrl = base_url + ref_elem[0].get("href")
+                            else:
+                                refUrl = None
                         elif value.get("id") == "eventActual_" + id_:
                             actual = value.text_content().strip()
                         elif value.get("id") == "eventForecast_" + id_:
@@ -304,10 +310,13 @@ def economic_calendar(
                         "time": time,
                         "zone": zone,
                         "currency": None if currency == "" else currency,
-                        "importance": None
-                        if importance_rating == None
-                        else cst.IMPORTANCE_RATINGS[int(importance_rating)],
+                        "importance": (
+                            None
+                            if importance_rating == None
+                            else cst.IMPORTANCE_RATINGS[int(importance_rating)]
+                        ),
                         "event": event,
+                        "refUrl": refUrl,
                         "actual": None if actual == "" else actual,
                         "forecast": None if forecast == "" else forecast,
                         "previous": None if previous == "" else previous,
