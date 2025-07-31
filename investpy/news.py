@@ -139,7 +139,7 @@ def economic_calendar(
             "ERR#0114: the introduced date value must be a string unless it is None."
         )
 
-    url = "https://www.investing.com/economic-calendar/Service/getCalendarFilteredData"
+    url = "https://vn.investing.com/economic-calendar/Service/getCalendarFilteredData"
 
     headers = {
         "User-Agent": random_user_agent(),
